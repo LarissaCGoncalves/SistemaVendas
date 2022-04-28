@@ -9,7 +9,7 @@ namespace Controller
     public class FornecedorController: BaseController<Fornecedor>
     {
 
-        public string Inserir(Fornecedor novoFornecedor)
+        public string Incluir(Fornecedor novoFornecedor)
         {
             string mensagem = ValidarEntradas(novoFornecedor);
             if (mensagem != "")
@@ -58,15 +58,12 @@ namespace Controller
 
         public string EditarTipoPessoa (int id, ETipoPessoa novoTipoPessoa)
         {
-            if (novoTipoPessoa == null)
-                return "Tipo Pessoa não informado.";
-
             Fornecedor fornecedorEditar = FiltrarFornecedorPorId(id);
             if (fornecedorEditar == null)
                 return "O id informado é inválido.";
 
             fornecedorEditar.TipoPessoa = novoTipoPessoa;
-            List<Fornecedor> fornecedores = new List<Fornecedor>();
+            List<Fornecedor> fornecedores = new List<Fornecedor>(); //testar se funciona com a lista no fim do código
 
             SalvarArquivo(fornecedores);
             return "";
@@ -90,13 +87,13 @@ namespace Controller
             return "";
         }
 
-        public string Excluir(Fornecedor fornecedor)
+        public string Excluir(Fornecedor fornecedorExcluir)
         {
-            if (fornecedor == null)
+            if (fornecedorExcluir == null)
                 return "Fornecedor informado é inválido.";
 
             List<Fornecedor> fornecedores = Listar();
-            fornecedores.Remove(fornecedor);
+            fornecedores.Remove(fornecedorExcluir);
 
             SalvarArquivo(fornecedores);
 
@@ -138,8 +135,6 @@ namespace Controller
         {
             if (string.IsNullOrWhiteSpace(fornecedor.Nome))
                 return "Nome inválido.";
-            else if (fornecedor.TipoPessoa == null)
-                return "Tipo pessoa não definido.";
             else if (string.IsNullOrWhiteSpace(fornecedor.Identificacao))
                 return "CPF ou CNPJ inválido.";
 
