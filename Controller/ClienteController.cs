@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Controller
 {
@@ -18,22 +17,26 @@ namespace Controller
                 string [] campos = linha.Split(';');
                 clientes.Add(new Cliente()
                 {
-                    Nome = campos[0],
-                    CPF = campos[1],
-                    Endereco = new EnderecoController().ObterEndereco(campos[2])
+                    Id = Int32.Parse(campos[0]),
+                    Nome = campos[1],
+                    CPF = campos[2],
+                    Endereco = new EnderecoController().FiltrarPorId(Int32.Parse(campos[3])),
+                    Telefone = campos[4],
+                    Email = campos[5]
                 });
             }
             return clientes;
         }
 
-        public string Incluir(Cliente cliente)
+        public string Incluir(Cliente novoCliente)
         {
-            string mensagem = ValidarCliente(cliente);
+            string mensagem = ValidarCliente(novoCliente);
             if (mensagem != "")
                 return mensagem;
 
             List<Cliente> clientes = new List<Cliente>();
-            clientes.Add(cliente);
+            novoCliente.Id = ObterProximoId();
+            clientes.Add(novoCliente);
 
             SalvarArquivo(clientes);
 
@@ -138,6 +141,11 @@ namespace Controller
         public Cliente FiltrarClientePorCPF(string cpf)
         {
             return Listar().Where(x => x.CPF == cpf).FirstOrDefault();
+        }
+
+        private int ObterProximoId()
+        {
+            return Listar().OrderByDescending(x => x.Id).Select(x => x.Id).FirstOrDefault() + 1;
         }
     }
 }

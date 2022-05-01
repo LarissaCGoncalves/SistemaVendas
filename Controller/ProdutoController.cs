@@ -15,6 +15,7 @@ namespace Controller
                 return mensagem;
 
             List<Produto> produtos = Listar();
+            novoProduto.Id = ObterProximoId();
             produtos.Add(novoProduto);
             SalvarArquivo(produtos);
 
@@ -23,14 +24,13 @@ namespace Controller
         
         public string Excluir(int id)
         {
-            List<Produto> produtos = Listar();
-            Produto produtoExcluir = ObterProdutoPorId(id);
-
             string mensagem = ValidarId(id);
             if (mensagem != "")
                 return mensagem;
 
-            produtos.Remove(produtoExcluir);
+            List<Produto> produtos = Listar();
+
+            produtos.Remove(ObterProdutoPorId(id));
             SalvarArquivo(produtos);
 
             return "";
@@ -49,11 +49,9 @@ namespace Controller
             return "";
         }
 
-        public string Editar(int id, string novoNome)
+        public string EditarNome(int id, string novoNome)
         {
-            List<Produto> produtos = this.Listar();
-            Produto produtoEditar = ObterProdutoPorId(id);
-
+            
             string mensagem = ValidarId(id);
             if (mensagem != "")
                 return mensagem;
@@ -61,6 +59,8 @@ namespace Controller
             else if (string.IsNullOrWhiteSpace(novoNome))
                 return "Nome informado é inválido.";
 
+            List<Produto> produtos = this.Listar();
+            Produto produtoEditar = ObterProdutoPorId(id);
             produtoEditar.Nome = novoNome;
             SalvarArquivo(produtos);
 
@@ -197,6 +197,11 @@ namespace Controller
                 return "O Id informado é inválido.";
             else
                 return "";
+        }
+
+        private int ObterProximoId()
+        {
+            return Listar().OrderByDescending(x => x.Id).Select(x => x.Id).FirstOrDefault() + 1;
         }
     }
 }

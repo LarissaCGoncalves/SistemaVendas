@@ -16,6 +16,7 @@ namespace Controller
                 return mensagem;
 
             List<Fornecedor> fornecedores = Listar();
+            novoFornecedor.Id = ObterProximoId();
             fornecedores.Add(novoFornecedor);
             SalvarArquivo(fornecedores);
 
@@ -32,9 +33,10 @@ namespace Controller
                 string[] campos = linha.Split(';');
                 fornecedores.Add(new Fornecedor()
                 {
-                    Nome = campos[0],
-                    TipoPessoa = IdentificarTipoPessoaPorInteiro(Int32.Parse(campos[1])),
-                    Identificacao = campos[2]
+                    Id = Int32.Parse(campos[0]),
+                    Nome = campos[1],
+                    TipoPessoa = IdentificarTipoPessoaPorInteiro(Int32.Parse(campos[2])),
+                    Identificacao = campos[3]
                 });
             }
             return fornecedores;
@@ -139,6 +141,11 @@ namespace Controller
                 return "CPF ou CNPJ inválido.";
 
             return "";
+        }
+
+        private int ObterProximoId()
+        {
+            return Listar().OrderByDescending(x => x.Id).Select(x => x.Id).FirstOrDefault() + 1;
         }
     }
 }
