@@ -7,6 +7,7 @@ namespace Controller
 {
     public class ClienteController : BaseController<Cliente>
     {
+        private EnderecoController _enderecoController = new EnderecoController();
         public List<Cliente> Listar()
         {
             List<Cliente> clientes = new List<Cliente>();
@@ -14,7 +15,7 @@ namespace Controller
 
             foreach (string linha in linhas)
             {
-                string [] campos = linha.Split(';');
+                string[] campos = linha.Split(';');
                 clientes.Add(new Cliente()
                 {
                     Id = Int32.Parse(campos[0]),
@@ -28,108 +29,91 @@ namespace Controller
             return clientes;
         }
 
-        public string Incluir(Cliente novoCliente)
+        public string IncluirClienteComEndereco(Cliente novoCliente)
         {
-            string mensagem = ValidarCliente(novoCliente);
+            string mensagem = ValidarClienteComEndereco(novoCliente);
             if (mensagem != "")
                 return mensagem;
 
-            List<Cliente> clientes = new List<Cliente>();
+            List<Cliente> clientes = Listar();
             novoCliente.Id = ObterProximoId();
             clientes.Add(novoCliente);
 
+            EnderecoController enderecoController = new EnderecoController();
+            enderecoController.IncluirEndereco(novoCliente.Endereco);
+
             SalvarArquivo(clientes);
 
             return "";
         }
 
-        public string EditarNome(int idCliente, string novoNome)
+        public string Editar(int idCliente, Cliente clienteAtualizado)
         {
+            string mensagem = ValidarClienteComEndereco(clienteAtualizado);
+
+            if (mensagem != "")
+                return mensagem;
+            else if (FiltrarClientePorId(idCliente) == null)
+                return "Id inválido.";
+
             List<Cliente> clientes = Listar();
+            int index = clientes.IndexOf(clientes.Where(cliente => cliente.Id == idCliente).FirstOrDefault());
 
-            if (string.IsNullOrWhiteSpace(novoNome))
-                return "Novo nome é inválido.";
+            clientes[index].Nome = clienteAtualizado.Nome;
+            clientes[index].CPF = clienteAtualizado.CPF;
+            clientes[index].Telefone = clienteAtualizado.Telefone;
+            clientes[index].Email = clienteAtualizado.Email;
 
-            Cliente cliente = FiltrarClientePorId(idCliente);
-            if (cliente == null)
-                return "O Id informado é inválido.";
+            if (clienteAtualizado.Endereco != default)
+            {
+                mensagem = _enderecoController.Editar(clientes[index].Endereco.Id, clienteAtualizado.Endereco);
+                if (mensagem != "")
+                    return mensagem;
+            }
 
-            cliente.Nome = novoNome;
             SalvarArquivo(clientes);
 
             return "";
         }
-
-        public string EditarCPF(int idCliente, string novoCpf)
-        {
-            List<Cliente> clientes = Listar();
-
-            if (string.IsNullOrWhiteSpace(novoCpf))
-                return "Novo novo CPF informado é inválido.";
-
-            Cliente cliente = FiltrarClientePorId(idCliente);
-            if (cliente == null)
-                return "O Id informado é inválido.";
-
-            cliente.CPF = novoCpf;
-            SalvarArquivo(clientes);
-
-            return "";
-        }
-
-        public string EditarEndereco(int idCliente, Endereco novoEndereco)
-        {
-            List<Cliente> clientes = Listar();
-
-            if (novoEndereco == null)
-                return "O novo endereço infrmado é inválido.";
-
-            Cliente cliente = FiltrarClientePorId(idCliente);
-            if (cliente == null)
-                return "O Id informado é inválido.";
-
-            cliente.Endereco = novoEndereco;
-            SalvarArquivo(clientes);
-
-            return "";
-        }
-
 
         public string Excluir(int id)
         {
-            Cliente clienteExcluir = FiltrarClientePorId(id);
-            if (clienteExcluir == null)
-                return "O Id informado é inválido.";
+            if (FiltrarClientePorId(id) == null)
+                return "Id inválido.";
 
-            List<Cliente> clientes = new List<Cliente>();
-            clientes.Remove(clienteExcluir);
+            List<Cliente> clientes = Listar();
+            int index = clientes.IndexOf(clientes.Where(cliente => cliente.Id == id).FirstOrDefault());
 
-            SalvarArquivo(clientes);
-
-            return "";
-        }
-
-        public string Excluir(Cliente clienteExcluir)
-        {
-            if (clienteExcluir == null)
-                return "O Cliente informado é inválido.";
-
-            List<Cliente> clientes = new List<Cliente>();
-            clientes.Remove(clienteExcluir);
+            _enderecoController.Excluir(clientes[index].Endereco.Id);
+            clientes.Remove(clientes[index]);
 
             SalvarArquivo(clientes);
 
             return "";
         }
 
-        private string ValidarCliente(Cliente cliente)
+        //public string Excluir(Cliente clienteExcluir)
+        //{
+        //    if (clienteExcluir == null)
+        //        return "O Cliente informado é inválido.";
+
+        //    List<Cliente> clientes = Listar();
+        //    clientes.Remove(clienteExcluir);
+
+        //    SalvarArquivo(clientes);
+
+        //    return "";
+        //}
+
+        private string ValidarClienteComEndereco(Cliente cliente)
         {
+            EnderecoController enderecoController = new EnderecoController();
             if (string.IsNullOrWhiteSpace(cliente.Nome))
                 return "Nome inválido.";
-            if (string.IsNullOrWhiteSpace(cliente.CPF))
+            else if (string.IsNullOrWhiteSpace(cliente.CPF))
                 return "O CPF do cliente é inválido.";
-            if (cliente.Endereco == null)
-                return "O campo endereço do cliente está vazio.";
+            else if (enderecoController.ValidarEndereco(cliente.Endereco) != "")
+                return enderecoController.ValidarEndereco(cliente.Endereco);
 
             return "";
         }

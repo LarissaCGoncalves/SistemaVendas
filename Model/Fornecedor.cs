@@ -13,6 +13,5 @@ namespace Model
         {
             return $"{Id};{Nome};{(int)TipoPessoa};{Identificacao}";
         }
-
     }
 }

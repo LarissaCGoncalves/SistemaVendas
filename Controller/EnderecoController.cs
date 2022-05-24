@@ -31,7 +31,7 @@ namespace Controller
             return enderecos;
         }
 
-        public string Incluir(Endereco novoEndereco)
+        public string IncluirEndereco(Endereco novoEndereco)
         {
             string mensagem = ValidarEndereco(novoEndereco);
             if (mensagem != "")
@@ -44,17 +44,20 @@ namespace Controller
             return "";
         }
 
-        public string EditarLogradouro(int id, string novoLogradouro)
+        public string Editar(int idEndereco, Endereco enderecoAtualizado)
         {
-            string mensagem = ValidarId(id);
-            if (string.IsNullOrWhiteSpace(novoLogradouro))
-                return "Novo logradouro inválido.";
-            else if (mensagem != "")
+            string mensagem = ValidarEndereco(enderecoAtualizado);
+            if (mensagem != "")
                 return mensagem;
 
             List<Endereco> enderecos = Listar();
-            Endereco endereco = FiltrarPorId(id);
-            endereco.Logradouro = novoLogradouro;
+            int index = enderecos.IndexOf(enderecos.Where(endereco => endereco.Id == idEndereco).FirstOrDefault()); 
+
+            if (FiltrarPorId(idEndereco) == null)
+                return "Id inválido.";
+
+            SubstituirEndereco(enderecos[index], enderecoAtualizado);
+
             SalvarArquivo(enderecos);
 
             return "";
@@ -62,12 +65,13 @@ namespace Controller
 
         public string Excluir(int id)
         {
-            string mensagem = ValidarId(id);
-            if (mensagem != "")
-                return mensagem;
+            if (FiltrarPorId(id) == null)
+                return "Id inválido.";
 
             List<Endereco> enderecos = Listar();
-            enderecos.Remove(FiltrarPorId(id));
+            int index = enderecos.IndexOf(enderecos.Where(endereco => endereco.Id == id).FirstOrDefault());
+            enderecos.Remove(enderecos[index]);
+
             SalvarArquivo(enderecos);
 
             return "";
@@ -86,7 +90,6 @@ namespace Controller
         }
 
         public Endereco FiltrarPorId(int id)
-            ///Obtém o endereço pelo Id informado.
         {
             return Listar().Where(x => x.Id == id).FirstOrDefault();
         }
@@ -96,9 +99,8 @@ namespace Controller
             return Listar().Where(x => x.CEP == cep).ToList();
         }
 
-        private string ValidarEndereco(Endereco endereco)
+        public string ValidarEndereco(Endereco endereco)
         {
-            int resultado;
             if (string.IsNullOrWhiteSpace(endereco.Logradouro))
                 return "Logradouro inválido.";
             else if (string.IsNullOrWhiteSpace(endereco.Numero))
@@ -109,19 +111,23 @@ namespace Controller
                 return "Cidade inválida.";
             else if (string.IsNullOrWhiteSpace(endereco.Estado))
                 return "Estado inválido.";
-            else if (string.IsNullOrWhiteSpace(endereco.CEP) || !Int32.TryParse(endereco.CEP, out resultado))
+            else if (string.IsNullOrWhiteSpace(endereco.CEP))
                 return "CEP inválido.";
 
             return "";
         }
 
-        private string ValidarId(int id)
+        private void SubstituirEndereco (Endereco enderecoAntigo, Endereco enderecoNovo)
         {
-            if (FiltrarPorId(id) == null)
-                return "O Id informado é inválido.";
-            else
-                return "";
+            enderecoAntigo.Logradouro = enderecoNovo.Logradouro;
+            enderecoAntigo.Numero = enderecoNovo.Numero;
+            enderecoAntigo.Bairro = enderecoNovo.Bairro;
+            enderecoAntigo.Complemento = enderecoNovo.Complemento;
+            enderecoAntigo.Cidade = enderecoNovo.Cidade;
+            enderecoAntigo.Estado = enderecoNovo.Estado;
+            enderecoAntigo.CEP = enderecoNovo.CEP;
         }
+
         private int ObterProximoId()
         {
             return Listar().OrderByDescending(x => x.Id).Select(x => x.Id).FirstOrDefault() + 1;

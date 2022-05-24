@@ -16,8 +16,8 @@ namespace Model
 
         public override string ToString()
         {
-            return $"{Id}; {Logradouro}; {Numero}; {Bairro};" +
-                $"{Complemento}; {Cidade}; {Estado}; {CEP}";
+            return $"{Id};{Logradouro};{Numero};{Bairro};" +
+                $"{Complemento};{Cidade};{Estado};{CEP}";
         }
     }
 }

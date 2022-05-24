@@ -24,44 +24,49 @@ namespace Controller
         
         public string Excluir(int id)
         {
-            string mensagem = ValidarId(id);
-            if (mensagem != "")
-                return mensagem;
+            if (FiltrarPorId(id) == null)
+                return "Id inválido.";
 
             List<Produto> produtos = Listar();
+            int index = produtos.IndexOf(produtos.Where(produto => produto.Id == id).FirstOrDefault());
+            produtos.Remove(produtos[index]);
 
-            produtos.Remove(ObterProdutoPorId(id));
             SalvarArquivo(produtos);
 
             return "";
         }
 
-        public string Excluir(Produto produtoExcluir)
+        //public string Excluir(Produto produtoExcluir)
+        //{
+        //    if (produtoExcluir == null)
+        //        return "O produto informado é inválido.";
+
+        //    List<Produto> produtos = Listar();
+
+        //    produtos.Remove(produtoExcluir);
+        //    SalvarArquivo(produtos);
+
+        //    return "";
+        //}
+
+        public string Editar(int id, Produto produtoAtualizado)
         {
-            if (produtoExcluir == null)
-                return "O produto informado é inválido.";
+            if (FiltrarPorId(id) == null)
+                return "Id inválido.";
 
-            List<Produto> produtos = Listar();
-
-            produtos.Remove(produtoExcluir);
-            SalvarArquivo(produtos);
-
-            return "";
-        }
-
-        public string EditarNome(int id, string novoNome)
-        {
-            
-            string mensagem = ValidarId(id);
+            string mensagem = ValidarEntradas(produtoAtualizado);
             if (mensagem != "")
                 return mensagem;
-
-            else if (string.IsNullOrWhiteSpace(novoNome))
-                return "Nome informado é inválido.";
 
             List<Produto> produtos = this.Listar();
-            Produto produtoEditar = ObterProdutoPorId(id);
-            produtoEditar.Nome = novoNome;
+            int index = produtos.IndexOf(produtos.Where(produto => produto.Id == id).FirstOrDefault());
+
+            produtos[index].Nome = produtoAtualizado.Nome;
+            produtos[index].Preco = produtoAtualizado.Preco;
+            produtos[index].Categoria = produtoAtualizado.Categoria;
+            produtos[index].Fornecedor = produtoAtualizado.Fornecedor;
+            produtos[index].Descricao = produtoAtualizado.Descricao;
+
             SalvarArquivo(produtos);
 
             return "";
@@ -93,11 +98,10 @@ namespace Controller
 
         public string AdicionarAoEstoque (int quantidade, int id)
         {
-            string mensagem = ValidarId(id);
-            if (mensagem != "")
-                return mensagem;
+            if (FiltrarPorId(id) == null)
+                return "Id inválido.";
 
-            Produto produto = ObterProdutoPorId(id);
+            Produto produto = FiltrarPorId(id);
             produto.Estoque += quantidade;
 
             return "";
@@ -105,11 +109,10 @@ namespace Controller
 
         public string RemoverDoEstoque (int quantidade, int id)
         {
-            string mensagem = ValidarId(id);
-            if (mensagem != "")
-                return mensagem;
+            if (FiltrarPorId(id) == null)
+                return "Id inválido.";
 
-            Produto produto = ObterProdutoPorId(id);
+            Produto produto = FiltrarPorId(id);
             if (produto.Estoque < quantidade)
                 return "Quantidade em estoque insuficiente.";
 
@@ -117,18 +120,18 @@ namespace Controller
 
             return "";
         }
-        private Produto ObterProdutoPorId(int id)
+        private Produto FiltrarPorId(int id)
         {
             return Listar().Where(x => x.Id == id).FirstOrDefault();
         }
 
-        public List<Produto> FiltrarProdutosPorCategoria (Categoria categoria)
+        public List<Produto> FiltrarPorCategoria (Categoria categoria)
         {
             List<Produto> produtosFiltrados = Listar().Where(x => x.Categoria == categoria).ToList();
 
             return produtosFiltrados;
         }
-        public List<Produto> FiltrarProdutosPorCategoria(int idCategoria)
+        public List<Produto> FiltrarPorCategoria(int idCategoria)
         {
             List<Produto> produtosFiltrados = Listar().Where( x => x.Categoria.Id == idCategoria).ToList();
 
@@ -143,14 +146,14 @@ namespace Controller
         }
 
         public List<Produto> FiltrarPorEstoqueMaximo (int maximaQuantidadeEmEstoque)
-            ///Retorna uma lista de produtos com estoque igual ou inferior a quantidade informada.
+            //Retorna uma lista de produtos com estoque igual ou inferior a quantidade informada.
         {
             List<Produto> produtosFiltrados = Listar().Where(x => x.Estoque <= maximaQuantidadeEmEstoque).ToList();
 
             return produtosFiltrados;
         }
         public List<Produto> FiltrarPorEstoqueMinimo(int maximaQuantidadeEmEstoque)
-        ///Retorna uma lista de produtos com estoque igual ou maior a quantidade informada.
+            //Retorna uma lista de produtos com estoque igual ou maior a quantidade informada.
         {
             List<Produto> produtosFiltrados = Listar().Where(x => x.Estoque >= maximaQuantidadeEmEstoque).ToList();
 
@@ -189,14 +192,6 @@ namespace Controller
             if (produto.Categoria == null)
                 return "É necessário definir uma categoria para o produto.";
             return "";
-        }
-
-        private string ValidarId (int id)
-        {
-            if (ObterProdutoPorId(id) == null)
-                return "O Id informado é inválido.";
-            else
-                return "";
         }
 
         private int ObterProximoId()

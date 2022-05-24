@@ -12,9 +12,9 @@ namespace Controller
         public string Incluir(Categoria novaCategoria)
         {
             if (string.IsNullOrWhiteSpace(novaCategoria.Nome))
-                return "Nome da categoria é invalido";
+                return "Nome da categoria é invalido.";
             if (Listar().Where(x => x.Nome.ToLower() == novaCategoria.Nome.ToLower()).Count() > 0)
-                return "Nome de categoria já existente";
+                return "Categoria já existente.";
 
             List<Categoria> categorias = Listar();
             novaCategoria.Id = ObterProximoId();
@@ -26,29 +26,30 @@ namespace Controller
 
         public string Excluir (int id)
         {
-            List<Categoria> categorias = this.Listar();
-            Categoria categoriaExcluir = FiltrarCategoriaPorId(id);
-
-            if (categoriaExcluir == null)
+            if (FiltrarCategoriaPorId(id) == null)
                 return "Id inválido";
 
-            categorias.Remove(categoriaExcluir);
+            List<Categoria> categorias = Listar();
+            int index = categorias.IndexOf(categorias.Where(categoria => categoria.Id == id).FirstOrDefault());
+            categorias.Remove(categorias[index]);
+
             SalvarArquivo(categorias);
 
             return "";
         }
 
-        public string Editar(int id, string novoNome)
+        public string Editar(int id, Categoria categoriaAtualizada)
         {
+            if (FiltrarCategoriaPorId(id) == null)
+                return "Id inválido.";
+
+            if (string.IsNullOrWhiteSpace(categoriaAtualizada.Nome))
+                return "Nome da categoria informado é inválido";
+
             List<Categoria> categorias = this.Listar();
-            Categoria categoriaEditar = FiltrarCategoriaPorId(id);
+            int index = categorias.IndexOf(categorias.Where(categoria => categoria.Id == id).FirstOrDefault());
 
-            if (categoriaEditar == null)
-                return "Id inválido";
-            else if (string.IsNullOrWhiteSpace(novoNome))
-                return "Nome informado é inválido";
-
-            categoriaEditar.Nome = novoNome;
+            categorias[index].Nome = categoriaAtualizada.Nome;
             SalvarArquivo(categorias);
 
             return "";

@@ -10,7 +10,8 @@ namespace ViewConsole
         static void Main(string[] args)
         {
             string entrada = "";
-            Console.WriteLine("Bem vindo ao Vendas MVC");
+            Console.WriteLine("Bem vindo ao Sistema!");
+            Console.WriteLine();
             while (entrada != "0")
             {
                 Console.WriteLine("Digite 1 para Categorias");
@@ -18,8 +19,6 @@ namespace ViewConsole
                 Console.WriteLine("Digite 3 para Endereco");
                 Console.WriteLine("Digite 4 para Fornecedor");
                 Console.WriteLine("Digite 5 para Produtos");
-
-
 
                 Console.WriteLine("Digite 0 para sair");
                 entrada = Console.ReadLine();
@@ -38,9 +37,7 @@ namespace ViewConsole
 
                 else if (entrada == "5")
                     ExibirMenuProdutos();
-
             }
-
         }
 
         public static void ExibirMenuCategoria()
@@ -85,16 +82,21 @@ namespace ViewConsole
             }
             else if (entrada == "4")
             {
-                Console.Write("Digite o Id da Categoria a ser editada: ");
-                entrada = Console.ReadLine();
-                Console.WriteLine();
-                Console.Write("Digite o novo nome da categoria: ");
-                string novoNome = Console.ReadLine();
-                string mensagem = categoriaController.Editar(Int32.Parse(entrada), novoNome);
-                if (mensagem != "")
-                    Console.WriteLine(mensagem);
-                else
-                    Console.WriteLine("Categoria editada com sucesso!");
+               Console.Write("Digite o Id da Categoria a ser editada: ");
+               entrada = Console.ReadLine();
+               Console.WriteLine();
+               Console.Write("Digite o nome da categoria: ");
+               string novoNome = Console.ReadLine();
+                Categoria novaCategoria = new Categoria()
+                {
+                    Nome = novoNome
+                };
+
+               string mensagem = categoriaController.Editar(Int32.Parse(entrada), novaCategoria);
+               if (mensagem != "")
+                   Console.WriteLine(mensagem);
+               else
+                   Console.WriteLine("Categoria editada com sucesso!");
 
             }
         }
@@ -159,20 +161,35 @@ namespace ViewConsole
                     Console.WriteLine("Categoria excluida com sucesso!");
 
             }
-            else if (entrada == "4")
-            {
-                Console.Write("Digite o Id do Produto a ser editado: ");
-                string id = Console.ReadLine();
-                Console.WriteLine();
-                Console.Write("Digite o novo nome da categoria: ");
-                string novoNome = Console.ReadLine();
-                string mensagem = produtoController.EditarNome(Int32.Parse(id), novoNome);
-                if (mensagem != "")
-                    Console.WriteLine(mensagem);
-                else
-                    Console.WriteLine("Produto editado com sucesso!");
+          else if (entrada == "4")
+          {
+              Console.Write("Digite o Id do Produto a ser editado: ");
+              string id = Console.ReadLine();
+              Console.WriteLine();
+              Console.Write("Digite o nome do Produto: ");
+              string nome = Console.ReadLine();
+              Console.Write("Digite a Descrição do Produto: ");
+              string descricao = Console.ReadLine();
+              Console.Write("Digite o Preço do Produto: ");
+              double preco = Double.Parse(Console.ReadLine());
+              Console.Write("Digite o estoque do Produto: ");
+              int estoque = Int32.Parse(Console.ReadLine());
 
-            }
+                Produto novoProduto = new Produto()
+                {
+                    Nome = nome,
+                    Descricao = descricao,
+                    Preco = preco,
+                    Estoque = estoque
+                };
+
+              string mensagem = produtoController.Editar(Int32.Parse(id), novoProduto);
+              if (mensagem != "")
+                  Console.WriteLine(mensagem);
+              else
+                  Console.WriteLine("Produto editado com sucesso!");
+
+          }
         }
 
         public static void ExibirMenuCliente()
@@ -204,7 +221,7 @@ namespace ViewConsole
                 Console.Write("Digite o Email do Cliente: ");
                 string email = Console.ReadLine();
 
-                string mensagem = clienteController.Incluir(new Cliente()
+                string mensagem = clienteController.IncluirClienteComEndereco(new Cliente()
                 {
                     Nome = nome,
                     CPF = cpf,
@@ -244,9 +261,23 @@ namespace ViewConsole
                 Console.Write("Digite o Id do Cliente a ser editado: ");
                 string id = Console.ReadLine();
                 Console.WriteLine();
-                Console.Write("Digite o novo nome do cliente: ");
+                Console.Write("Digite o nome do cliente: ");
                 string novoNome = Console.ReadLine();
-                string mensagem = clienteController.EditarNome(Int32.Parse(id), novoNome);
+                Console.Write("Digite CPF do cliente: ");
+                string cpf = Console.ReadLine();
+                Console.Write("Digite Telefone do cliente: ");
+                string telefone = Console.ReadLine();
+                Console.Write("Digite o Email cliente: ");
+                string email = Console.ReadLine();
+                Cliente novoCliente = new Cliente()
+                {
+                    Nome = novoNome,
+                    CPF = cpf,
+                    Telefone = telefone,
+                    Email = email
+                };
+
+                string mensagem = clienteController.Editar(Int32.Parse(id), novoCliente);
                 if (mensagem != "")
                     Console.WriteLine(mensagem);
                 else
@@ -285,7 +316,7 @@ namespace ViewConsole
                 Console.Write("Digite o CEP: ");
                 string cep = Console.ReadLine();
 
-                string mensagem = enderecoController.Incluir(new Endereco()
+                string mensagem = enderecoController.IncluirEndereco(new Endereco()
                 {
                     Logradouro = logradouro,
                     Numero = numero,
@@ -326,9 +357,32 @@ namespace ViewConsole
                 Console.Write("Digite o Id do Endereco a ser editado: ");
                 string id = Console.ReadLine();
                 Console.WriteLine();
-                Console.Write("Digite o novo nome do cliente: ");
-                string novoLogradouro = Console.ReadLine();
-                string mensagem = enderecoController.EditarLogradouro(Int32.Parse(id), novoLogradouro);
+                Console.Write("Digite o nome do Logradouro: ");
+                string logradouro = Console.ReadLine();
+                Console.Write("Digite o número: ");
+                string numero = Console.ReadLine();
+                Console.Write("Digite o complemento, caso haja: ");
+                string complemento = Console.ReadLine();
+                Console.Write("Digite o Bairro: ");
+                string bairro = Console.ReadLine();
+                Console.Write("Digite a Cidade: ");
+                string cidade = Console.ReadLine();
+                Console.Write("Digite o Estado: ");
+                string estado = Console.ReadLine();
+                Console.Write("Digite o n° do CEP: ");
+                string cep = Console.ReadLine();
+                Endereco novoEndereco = new Endereco()
+                {
+                    Logradouro = logradouro,
+                    Numero = numero,
+                    Complemento = complemento,
+                    Bairro = bairro,
+                    Cidade = cidade,
+                    Estado = estado,
+                    CEP = cep
+                };
+
+                string mensagem = enderecoController.Editar(Int32.Parse(id), novoEndereco);
                 if (mensagem != "")
                     Console.WriteLine(mensagem);
                 else
@@ -350,7 +404,7 @@ namespace ViewConsole
                 Console.Write("Digite o nome do Fornecedor: ");
                 string nome = Console.ReadLine();
 
-                Console.Write("Digite o número do Tipo Pessoa do Fornecedor: ");
+                Console.Write("Digite o número do Tipo Pessoa do Fornecedor: 0 - Pessoa física    1 - Pessoa Jurídica");
                 int tipoPessoa = Int32.Parse(Console.ReadLine());
 
 
@@ -361,7 +415,7 @@ namespace ViewConsole
                 {
                     Nome = nome,
                     Identificacao = identificacao,
-                    TipoPessoa = tipoPessoa == 1 ? ETipoPessoa.Fisica : tipoPessoa == 2 ? ETipoPessoa.Juridica : ETipoPessoa.NaoInformado
+                    TipoPessoa = tipoPessoa == 0 ? ETipoPessoa.Fisica : ETipoPessoa.Juridica
                 });
 
                 if (mensagem != "")
@@ -394,7 +448,18 @@ namespace ViewConsole
                 Console.WriteLine();
                 Console.Write("Digite o novo nome do fornecedor: ");
                 string novoNome = Console.ReadLine();
-                string mensagem = fornecedorController.EditarNome(Int32.Parse(id), novoNome);
+                Console.Write("Digite o CPF ou CNPJ do fornecedor: ");
+                string identificacao = Console.ReadLine();
+                Console.Write("Digite 0 - Pessoa Física, 1 - Pessoa Jurídica: ");
+                int tipoPessoa = Int32.Parse(Console.ReadLine());
+
+                Fornecedor novoFornecedor = new Fornecedor()
+                {
+                    Nome = novoNome,
+                    Identificacao = identificacao,
+                    TipoPessoa = tipoPessoa == 0 ? ETipoPessoa.Fisica : ETipoPessoa.Juridica
+                };
+                string mensagem = fornecedorController.Editar(Int32.Parse(id), novoFornecedor);
                 if (mensagem != "")
                     Console.WriteLine(mensagem);
                 else

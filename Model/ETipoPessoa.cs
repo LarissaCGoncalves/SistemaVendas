@@ -6,8 +6,7 @@ namespace Model
 {
     public enum ETipoPessoa
     {
-        NaoInformado = 0,
-        Fisica = 1,
-        Juridica = 2
+        Fisica = 0,
+        Juridica = 1
     }
 }
